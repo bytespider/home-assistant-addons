@@ -36,6 +36,8 @@ plugin_opt_config_file /etc/mosquitto/dynamic-security.json
 include_dir /share/{{ .customize_folder }}
 {{ end }}
 
+tls_version tlsv1.2
+
 listener 1883
 protocol mqtt
 

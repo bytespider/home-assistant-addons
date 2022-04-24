@@ -18,19 +18,23 @@ discovery_password=$(bashio::jq "${SYSTEM_USER}" ".homeassistant.password")
 service_password=$(bashio::jq "${SYSTEM_USER}" ".addons.password")
 
 # Set default access
-bashio::log.info "Setting default access.."
-mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec setDefaultACLAccess publishClientSend allow
-mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec setDefaultACLAccess publishClientReceive allow
-mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec setDefaultACLAccess subscribe allow
-mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec setDefaultACLAccess unsubscribe allow
+bashio::log.info "Creating default access role..."
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec createRole default
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec addRoleACL default publishClientSend '#' allow
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec addRoleACL default publishClientReceive '#' allow
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec addRoleACL default subscribe '#' allow
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec addRoleACL default unsubscribe '#' allow
+
 
 # Set up discovery user
 bashio::log.info "Adding Home Assistant discovery user..."
 mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec createClient 'homeassistant' -p "${discovery_password}"
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec addClientRole 'homeassistant' default
 
 # Set up service user
 bashio::log.info "Adding Home Assistant addon user..."
 mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec createClient 'addons' -p "${service_password}"
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec addClientRole 'addons' default
 
 # Set up other username and password for the broker
 for login in $(bashio::config 'logins|keys'); do
@@ -42,4 +46,5 @@ for login in $(bashio::config 'logins|keys'); do
 
   bashio::log.info "Setting up user ${username}"
   mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec createClient "${username}" -p "${password}"
+  mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec addClientRole "${username}" default
 done
