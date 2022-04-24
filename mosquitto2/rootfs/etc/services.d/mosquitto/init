@@ -1,0 +1,45 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Send MQTT discovery information to Home Assistant and service information
+# to the Supervisor (for other add-ons).
+# ==============================================================================
+readonly SYSTEM_USER="/data/system_user.json"
+declare admin_password
+declare discovery_password
+declare service_password
+
+# Wait for mosquitto to start before continuing
+bashio::net.wait_for 1883
+
+# Read the existing values
+admin_password=$(bashio::jq "${SYSTEM_USER}" ".admin.password")
+discovery_password=$(bashio::jq "${SYSTEM_USER}" ".homeassistant.password")
+service_password=$(bashio::jq "${SYSTEM_USER}" ".addons.password")
+
+# Set default access
+bashio::log.info "Setting default access.."
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec setDefaultACLAccess publishClientSend allow
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec setDefaultACLAccess publishClientReceive allow
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec setDefaultACLAccess subscribe allow
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec setDefaultACLAccess unsubscribe allow
+
+# Set up discovery user
+bashio::log.info "Adding Home Assistant discovery user..."
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec createClient 'homeassistant' -p "${discovery_password}"
+
+# Set up service user
+bashio::log.info "Adding Home Assistant addon user..."
+mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec createClient 'addons' -p "${service_password}"
+
+# Set up other username and password for the broker
+for login in $(bashio::config 'logins|keys'); do
+  bashio::config.require.username "logins[${login}].username"
+  bashio::config.require.password "logins[${login}].password"
+
+  username=$(bashio::config "logins[${login}].username")
+  password=$(bashio::config "logins[${login}].password")
+
+  bashio::log.info "Setting up user ${username}"
+  mosquitto_ctrl -u 'admin' -P "${admin_password}" dynsec createClient "${username}" -p "${password}"
+done
