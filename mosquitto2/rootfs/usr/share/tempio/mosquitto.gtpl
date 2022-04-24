@@ -47,8 +47,6 @@ protocol websockets
 # Follow SSL listener if a certificate exists
 listener 8883
 protocol mqtt
-tls_version tlsv1.2
-ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA
 {{ if .cafile }}
 cafile {{ .cafile }}
 {{ else }}
