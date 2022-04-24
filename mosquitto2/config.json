@@ -1,7 +1,7 @@
 {
   "name": "Mosquitto broker",
   "version": "1.0.0",
-  "slug": "mosquitto",
+  "slug": "mosquitto2",
   "description": "An Open Source MQTT broker",
   "url": "https://github.com/bytespider/home-assistant-addons",
   "arch": [
