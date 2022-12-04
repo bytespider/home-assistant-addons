@@ -1,0 +1,13 @@
+---
+configuration:
+  username:
+    name: Username
+  password:
+    name: Password
+  accept_tos:
+    name: Accept the Terms of Service
+    description: >
+      https://pawns.app/terms-of-use/
+  device_name:
+    name: Device name
+    description: Name to identify this device in your account

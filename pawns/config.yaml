@@ -1,0 +1,23 @@
+name: Pawns.app
+version: '1.0.0'
+slug: example
+description: Make passive money online by sharing your internet
+url: 'http://example.com'
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+init: false
+options:
+  email: ''
+  password: ''
+  accept_tos: false
+  device_name: 'Home Assistant'
+schema:
+  email: match(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)
+  password: password
+  accept_tos: bool
+  device_name: 'str'
+# image: 'ghcr.io/home-assistant/{arch}-pawns-app-addon'

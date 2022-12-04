@@ -1,0 +1,13 @@
+#!/usr/bin/with-contenv bashio
+
+EMAIL=$(bashio::config 'email')
+PASSWORD=$(bashio::config 'password')
+DEVICE_NAME=$(bashio::config 'device_name')
+
+if bashio::config.false 'accept_tos'; then
+  bashio::log.notice "You must accept the Terms of Service"
+  exit 1
+fi
+
+bashio::log.info "Starting Pawns.app..."
+exec /usr/bin/pawns-cli -device-name="${DEVICE_NAME}" -email="${EMAIL}" -password="${PASSWORD}" -accept-tos
